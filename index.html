@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Design Brief Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body class="text-slate-700">
+    <div class="container mx-auto max-w-4xl p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900">AI-Powered Design Brief Generator</h1>
+            <p class="mt-2 text-lg text-slate-600">A tool to build a comprehensive brief for any design project.</p>
+        </header>
+
+        <div class="form-section">
+            <h2 class="text-2xl font-bold mb-4 text-slate-800 border-b pb-2">Project Overview</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div><label for="projectName" class="form-label">Project Name</label><input type="text" id="projectName" class="form-input" placeholder="e.g., Annual Gala 2025 Campaign"></div>
+                <div><label for="projectManager" class="form-label">Project Manager</label><input type="text" id="projectManager" class="form-input" placeholder="e.g., Daisy Yam"></div>
+                <div><label for="projectDate" class="form-label">Date Prepared</label><input type="date" id="projectDate" class="form-input"></div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2 class="text-2xl font-bold mb-4 text-slate-800 border-b pb-2">Phase 1: Project Strategy</h2>
+            <div class="space-y-6">
+                <div>
+                    <label for="objective" class="form-label">1. Primary Objective</label>
+                    <p class="text-sm text-slate-500 mb-2">What is the single most important goal of this project?</p>
+                    <textarea id="objective" class="form-textarea" placeholder="e.g., To promote the Nanyin event series and drive registrations for the concert."></textarea>
+                    <div class="ai-feature-box">
+                        <h4 class="text-md font-semibold text-indigo-800 mb-2">AI Assistant</h4>
+                        <button id="refineObjectiveBtn" class="action-btn">✨ Refine Objective</button>
+                        <div id="objectiveResult" class="mt-3 text-sm leading-relaxed"></div>
+                        <p id="objectiveDisclaimer" class="text-xs text-gray-500 mt-2 hidden">AI-generated suggestion. Use this to inspire your final text.</p>
+                    </div>
+                </div>
+                <div>
+                    <label for="audience" class="form-label">2. Target Audience</label>
+                    <p class="text-sm text-slate-500 mb-2">Who are we trying to reach with this design?</p>
+                    <textarea id="audience" class="form-textarea" placeholder="e.g., General public with an interest in arts and culture, history enthusiasts, existing Tung Wah supporters, and secondary/tertiary students."></textarea>
+                </div>
+                <div>
+                    <label for="keyMessage" class="form-label">3. Key Message</label>
+                    <p class="text-sm text-slate-500 mb-2">If the audience could only remember one thing, what would it be?</p>
+                    <textarea id="keyMessage" class="form-textarea" placeholder="e.g., East meets West, tradition meets innovation—experience the living history of Nanyin."></textarea>
+                    <div class="ai-feature-box">
+                        <h4 class="text-md font-semibold text-indigo-800 mb-2">AI Assistant</h4>
+                        <button id="suggestMessagesBtn" class="action-btn">✨ Suggest Key Messages</button>
+                        <div id="messagesResult" class="mt-3 text-sm leading-relaxed"></div>
+                        <p id="messagesDisclaimer" class="text-xs text-gray-500 mt-2 hidden">AI-generated suggestions. Use these to inspire your final text.</p>
+                    </div>
+                </div>
+                <div>
+                    <label for="tone" class="form-label">4. Desired Tone & Feel</label>
+                    <p class="text-sm text-slate-500 mb-2">What is the desired mood for the design?</p>
+                    <input type="text" id="tone" class="form-input" placeholder="e.g., Elegant, cultural, respectful, modern, and engaging.">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2 class="text-2xl font-bold mb-4 text-slate-800 border-b pb-2">Phase 2: Deliverables & Specifications</h2>
+            <p class="text-sm text-slate-500 mb-4">List all items that need to be designed. You can also use the AI assistant below to get some ideas first.</p>
+            <div class="ai-feature-box mb-6">
+                <h4 class="text-md font-semibold text-indigo-800 mb-2">AI Assistant</h4>
+                <button id="generateIdeasBtn" class="action-btn">✨ Suggest Deliverable Ideas</button>
+                <div id="ideasResult" class="mt-3 text-sm leading-relaxed"></div>
+                <p id="ideasDisclaimer" class="text-xs text-gray-500 mt-2 hidden">AI-generated suggestions. Use these to inspire your list below.</p>
+            </div>
+            <div id="deliverables-container"></div>
+            <button id="add-deliverable-btn" class="action-btn mt-4">＋ Add Deliverable</button>
+        </div>
+        
+        <div class="form-section">
+            <h2 class="text-2xl font-bold mb-4 text-slate-800 border-b pb-2">Phase 3: Asset Links</h2>
+            <p class="text-sm text-slate-500 mb-4">Provide links to shared cloud folders for all necessary assets.</p>
+            <div class="space-y-4">
+                <div>
+                    <label for="link-logos" class="form-label">Logos Folder Link</label>
+                    <input type="text" id="link-logos" class="form-input" placeholder="Paste link to logos folder (e.g., Google Drive, Dropbox)">
+                </div>
+                <div>
+                    <label for="link-images" class="form-label">Images Folder Link</label>
+                    <input type="text" id="link-images" class="form-input" placeholder="Paste link to images folder">
+                </div>
+                <div>
+                    <label for="link-brand" class="form-label">Brand Guidelines Link</label>
+                    <input type="text" id="link-brand" class="form-input" placeholder="Paste link to brand guidelines PDF">
+                </div>
+                <div>
+                    <label for="link-refs" class="form-label">Inspiration / References Link</label>
+                    <input type="text" id="link-refs" class="form-input" placeholder="Paste link to mood board or reference folder">
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-section">
+             <h2 class="text-2xl font-bold mb-4 text-slate-800 border-b pb-2">Phase 4: Timeline & Review</h2>
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div><label for="date-draft" class="form-label">First Draft Due</label><input type="date" id="date-draft" class="form-input"></div>
+                <div><label for="date-feedback" class="form-label">Feedback Due</label><input type="date" id="date-feedback" class="form-input"></div>
+                <div><label for="date-final" class="form-label">Final Version Due</label><input type="date" id="date-final" class="form-input"></div>
+                <div><label for="date-live" class="form-label">Project Go-Live / Print Date</label><input type="date" id="date-live" class="form-input"></div>
+                <div class="md:col-span-2"><label for="contact" class="form-label">Primary Point of Contact</label><input type="text" id="contact" class="form-input" placeholder="Enter name and email for feedback"></div>
+             </div>
+        </div>
+
+        <div class="form-section text-center">
+            <h2 class="text-2xl font-bold mb-4 text-slate-800">Generate Your Brief</h2>
+            <p class="text-slate-600 mb-6">When you're finished, click the button to compile all information into a single text block and copy it to your clipboard. You can then paste it into an email or document for your designer.</p>
+            <button id="generate-btn" class="final-btn">📋 Generate & Copy Brief</button>
+            <p id="copy-success" class="text-green-600 mt-4 font-semibold hidden">Brief copied to clipboard!</p>
+        </div>
+    </div>
+
+   <script src="script.js"></script>
+</body>
+</html>
