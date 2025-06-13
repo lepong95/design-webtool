@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI-Powered Design Brief Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <link rel="stylesheet" href="style.css">
 
 </head>
@@ -80,22 +79,10 @@
             <h2 class="text-2xl font-bold mb-4 text-slate-800 border-b pb-2">Phase 3: Asset Links</h2>
             <p class="text-sm text-slate-500 mb-4">Provide links to shared cloud folders for all necessary assets.</p>
             <div class="space-y-4">
-                <div>
-                    <label for="link-logos" class="form-label">Logos Folder Link</label>
-                    <input type="text" id="link-logos" class="form-input" placeholder="Paste link to logos folder (e.g., Google Drive, Dropbox)">
-                </div>
-                <div>
-                    <label for="link-images" class="form-label">Images Folder Link</label>
-                    <input type="text" id="link-images" class="form-input" placeholder="Paste link to images folder">
-                </div>
-                <div>
-                    <label for="link-brand" class="form-label">Brand Guidelines Link</label>
-                    <input type="text" id="link-brand" class="form-input" placeholder="Paste link to brand guidelines PDF">
-                </div>
-                <div>
-                    <label for="link-refs" class="form-label">Inspiration / References Link</label>
-                    <input type="text" id="link-refs" class="form-input" placeholder="Paste link to mood board or reference folder">
-                </div>
+                <div><label for="link-logos" class="form-label">Logos Folder Link</label><input type="text" id="link-logos" class="form-input" placeholder="Paste link to logos folder (e.g., Google Drive, Dropbox)"></div>
+                <div><label for="link-images" class="form-label">Images Folder Link</label><input type="text" id="link-images" class="form-input" placeholder="Paste link to images folder"></div>
+                <div><label for="link-brand" class="form-label">Brand Guidelines Link</label><input type="text" id="link-brand" class="form-input" placeholder="Paste link to brand guidelines PDF"></div>
+                <div><label for="link-refs" class="form-label">Inspiration / References Link</label><input type="text" id="link-refs" class="form-input" placeholder="Paste link to mood board or reference folder"></div>
             </div>
         </div>
         
@@ -112,12 +99,12 @@
 
         <div class="form-section text-center">
             <h2 class="text-2xl font-bold mb-4 text-slate-800">Generate Your Brief</h2>
-            <p class="text-slate-600 mb-6">When you're finished, click the button to compile all information into a single text block and copy it to your clipboard. You can then paste it into an email or document for your designer.</p>
-            <button id="generate-btn" class="final-btn">📋 Generate & Copy Brief</button>
-            <p id="copy-success" class="text-green-600 mt-4 font-semibold hidden">Brief copied to clipboard!</p>
+            <p class="text-slate-600 mb-6">When you're finished, click the button to compile all information into a formatted **HTML table** and copy it to your clipboard.</p>
+            <button id="generate-btn" class="final-btn">📋 Generate & Copy Brief as Table</button>
+            <p id="copy-success" class="text-green-600 mt-4 font-semibold hidden">HTML Brief copied to clipboard!</p>
         </div>
     </div>
 
-   <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
