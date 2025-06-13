@@ -1,109 +1,192 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI-Powered Design Brief Generator</title>
+    <title>活動籌備工具庫 (自動儲存版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="style.css">
+    <!-- Chosen Palette: Unified Professional Blue -->
+    <!-- Application Structure Plan: This SPA serves as a central dashboard or "Toolbox". The architecture uses a card-based main menu. Clicking a card opens a full-screen modal containing the specific tool or document. Crucially, this version adds persistence using browser localStorage. Each tool's state (the `collateralData` array for the tracker, and all form field values for the brief generator) is saved on every change and loaded on initialization. A "Reset" button is added to each tool to clear its specific localStorage data, allowing the user to start fresh. -->
+    <!-- Visualization & Content Choices:
+        - Main Dashboard: HTML/CSS Cards for navigation.
+        - Collateral Tracker Tool: Now loads its initial data from localStorage if available, otherwise uses default data. All user actions (add, edit, delete, update status, log history) now trigger a function to save the entire state back to localStorage.
+        - Design Brief Generator: Now loads its state from a JSON object in localStorage on startup. An event listener on the form container saves the entire form's state to localStorage on any `input` or `change` event, providing real-time persistence.
+        - Document Viewer: Remains static as it's a reference library.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 
+    <link rel="stylesheet" href="style.css">
+  
 </head>
-<body class="text-slate-700">
-    <div class="container mx-auto max-w-4xl p-4 sm:p-6 lg:p-8">
-        <header class="text-center mb-10">
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900">AI-Powered Design Brief Generator</h1>
-            <p class="mt-2 text-lg text-slate-600">A tool to build a comprehensive brief for any design project.</p>
+<body class="text-slate-800">
+
+    <div class="container mx-auto max-w-5xl p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900">活動籌備工具庫</h1>
+            <p class="mt-3 text-lg text-slate-600">您的專屬項目儀表板，點擊下方卡片以啟動工具或查閱文件。<br><span class="text-sm text-blue-600 font-semibold">(所有輸入的資料將會自動儲存在您的瀏覽器中)</span></p>
         </header>
 
-        <div class="form-section">
-            <h2 class="text-2xl font-bold mb-4 text-slate-800 border-b pb-2">Project Overview</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div><label for="projectName" class="form-label">Project Name</label><input type="text" id="projectName" class="form-input" placeholder="e.g., Annual Gala 2025 Campaign"></div>
-                <div><label for="projectManager" class="form-label">Project Manager</label><input type="text" id="projectManager" class="form-input" placeholder="e.g., Daisy Yam"></div>
-                <div><label for="projectDate" class="form-label">Date Prepared</label><input type="date" id="projectDate" class="form-input"></div>
-            </div>
-        </div>
-
-        <div class="form-section">
-            <h2 class="text-2xl font-bold mb-4 text-slate-800 border-b pb-2">Phase 1: Project Strategy</h2>
-            <div class="space-y-6">
-                <div>
-                    <label for="objective" class="form-label">1. Primary Objective</label>
-                    <p class="text-sm text-slate-500 mb-2">What is the single most important goal of this project?</p>
-                    <textarea id="objective" class="form-textarea" placeholder="e.g., To promote the Nanyin event series and drive registrations for the concert."></textarea>
-                    <div class="ai-feature-box">
-                        <h4 class="text-md font-semibold text-indigo-800 mb-2">AI Assistant</h4>
-                        <button id="refineObjectiveBtn" class="action-btn">✨ Refine Objective</button>
-                        <div id="objectiveResult" class="mt-3 text-sm leading-relaxed"></div>
-                        <p id="objectiveDisclaimer" class="text-xs text-gray-500 mt-2 hidden">AI-generated suggestion. Use this to inspire your final text.</p>
-                    </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div id="launch-tracker" class="tool-card">
+                <div class="p-6">
+                    <div class="text-4xl mb-4">🗂️</div>
+                    <h2 class="text-xl font-bold text-slate-800">宣傳物料追蹤工具</h2>
+                    <p class="text-slate-500 mt-2">互動式儀表板，用卡片形式追蹤每一份宣傳品的版本、狀態和下一步行動。</p>
                 </div>
-                <div>
-                    <label for="audience" class="form-label">2. Target Audience</label>
-                    <p class="text-sm text-slate-500 mb-2">Who are we trying to reach with this design?</p>
-                    <textarea id="audience" class="form-textarea" placeholder="e.g., General public with an interest in arts and culture, history enthusiasts, existing Tung Wah supporters, and secondary/tertiary students."></textarea>
-                </div>
-                <div>
-                    <label for="keyMessage" class="form-label">3. Key Message</label>
-                    <p class="text-sm text-slate-500 mb-2">If the audience could only remember one thing, what would it be?</p>
-                    <textarea id="keyMessage" class="form-textarea" placeholder="e.g., East meets West, tradition meets innovation—experience the living history of Nanyin."></textarea>
-                    <div class="ai-feature-box">
-                        <h4 class="text-md font-semibold text-indigo-800 mb-2">AI Assistant</h4>
-                        <button id="suggestMessagesBtn" class="action-btn">✨ Suggest Key Messages</button>
-                        <div id="messagesResult" class="mt-3 text-sm leading-relaxed"></div>
-                        <p id="messagesDisclaimer" class="text-xs text-gray-500 mt-2 hidden">AI-generated suggestions. Use these to inspire your final text.</p>
-                    </div>
-                </div>
-                <div>
-                    <label for="tone" class="form-label">4. Desired Tone & Feel</label>
-                    <p class="text-sm text-slate-500 mb-2">What is the desired mood for the design?</p>
-                    <input type="text" id="tone" class="form-input" placeholder="e.g., Elegant, cultural, respectful, modern, and engaging.">
-                </div>
+                <div class="bg-slate-50 px-6 py-3 text-blue-600 font-semibold rounded-b-lg">啟動工具 →</div>
             </div>
-        </div>
-
-        <div class="form-section">
-            <h2 class="text-2xl font-bold mb-4 text-slate-800 border-b pb-2">Phase 2: Deliverables & Specifications</h2>
-            <p class="text-sm text-slate-500 mb-4">List all items that need to be designed. You can also use the AI assistant below to get some ideas first.</p>
-            <div class="ai-feature-box mb-6">
-                <h4 class="text-md font-semibold text-indigo-800 mb-2">AI Assistant</h4>
-                <button id="generateIdeasBtn" class="action-btn">✨ Suggest Deliverable Ideas</button>
-                <div id="ideasResult" class="mt-3 text-sm leading-relaxed"></div>
-                <p id="ideasDisclaimer" class="text-xs text-gray-500 mt-2 hidden">AI-generated suggestions. Use these to inspire your list below.</p>
+            <div id="launch-brief-generator" class="tool-card">
+                <div class="p-6">
+                    <div class="text-4xl mb-4">📋</div>
+                    <h2 class="text-xl font-bold text-slate-800">設計簡報生成工具</h2>
+                    <p class="text-slate-500 mt-2">為任何設計專案填寫需求，並一鍵生成格式精美的簡報，直接複製給設計師。</p>
+                </div>
+                <div class="bg-slate-50 px-6 py-3 text-blue-600 font-semibold rounded-b-lg">啟動工具 →</div>
             </div>
-            <div id="deliverables-container"></div>
-            <button id="add-deliverable-btn" class="action-btn mt-4">＋ Add Deliverable</button>
-        </div>
-        
-        <div class="form-section">
-            <h2 class="text-2xl font-bold mb-4 text-slate-800 border-b pb-2">Phase 3: Asset Links</h2>
-            <p class="text-sm text-slate-500 mb-4">Provide links to shared cloud folders for all necessary assets.</p>
-            <div class="space-y-4">
-                <div><label for="link-logos" class="form-label">Logos Folder Link</label><input type="text" id="link-logos" class="form-input" placeholder="Paste link to logos folder (e.g., Google Drive, Dropbox)"></div>
-                <div><label for="link-images" class="form-label">Images Folder Link</label><input type="text" id="link-images" class="form-input" placeholder="Paste link to images folder"></div>
-                <div><label for="link-brand" class="form-label">Brand Guidelines Link</label><input type="text" id="link-brand" class="form-input" placeholder="Paste link to brand guidelines PDF"></div>
-                <div><label for="link-refs" class="form-label">Inspiration / References Link</label><input type="text" id="link-refs" class="form-input" placeholder="Paste link to mood board or reference folder"></div>
+            <div id="launch-docs" class="tool-card">
+                <div class="p-6">
+                    <div class="text-4xl mb-4">📚</div>
+                    <h2 class="text-xl font-bold text-slate-800">文件庫</h2>
+                    <p class="text-slate-500 mt-2">查閱所有已撰寫的定稿文件，包括活動特稿、音樂會場刊及司儀稿。</p>
+                </div>
+                <div class="bg-slate-50 px-6 py-3 text-blue-600 font-semibold rounded-b-lg">查看文件 →</div>
             </div>
-        </div>
-        
-        <div class="form-section">
-             <h2 class="text-2xl font-bold mb-4 text-slate-800 border-b pb-2">Phase 4: Timeline & Review</h2>
-             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div><label for="date-draft" class="form-label">First Draft Due</label><input type="date" id="date-draft" class="form-input"></div>
-                <div><label for="date-feedback" class="form-label">Feedback Due</label><input type="date" id="date-feedback" class="form-input"></div>
-                <div><label for="date-final" class="form-label">Final Version Due</label><input type="date" id="date-final" class="form-input"></div>
-                <div><label for="date-live" class="form-label">Project Go-Live / Print Date</label><input type="date" id="date-live" class="form-input"></div>
-                <div class="md:col-span-2"><label for="contact" class="form-label">Primary Point of Contact</label><input type="text" id="contact" class="form-input" placeholder="Enter name and email for feedback"></div>
-             </div>
-        </div>
-
-        <div class="form-section text-center">
-            <h2 class="text-2xl font-bold mb-4 text-slate-800">Generate Your Brief</h2>
-            <p class="text-slate-600 mb-6">When you're finished, click the button to compile all information into a formatted **HTML table** and copy it to your clipboard.</p>
-            <button id="generate-btn" class="final-btn">📋 Generate & Copy Brief as Table</button>
-            <p id="copy-success" class="text-green-600 mt-4 font-semibold hidden">HTML Brief copied to clipboard!</p>
         </div>
     </div>
+
+    <!-- Universal Modal Structure -->
+    <div id="modal" class="modal-overlay">
+        <div class="modal-container">
+            <header class="modal-header">
+                <h2 id="modal-title-text" class="text-2xl font-bold text-slate-800"></h2>
+                <div class="flex items-center gap-4">
+                    <button id="modal-reset-btn" class="text-xs bg-red-100 text-red-700 hover:bg-red-200 py-1 px-3 rounded-md font-semibold hidden">清除此工具的資料</button>
+                    <button id="modal-close" class="modal-close-btn">&times;</button>
+                </div>
+            </header>
+            <div id="modal-body-content" class="modal-body">
+                <!-- Content will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- TEMPLATES -->
+    <template id="template-tracker">
+        <style>
+            .card { background: white; border-radius: 0.75rem; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1); transition: box-shadow 0.2s; }
+            .status-select, .filter-select { padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem; background-color: white; font-size: 0.875rem; }
+            .status-badge-待辦 { background-color: #e5e7eb; color: #4b5563; }
+            .status-badge-內容準備中 { background-color: #dbeafe; color: #1e40af; }
+            .status-badge-設計中 { background-color: #e0e7ff; color: #3730a3; }
+            .status-badge-待審批 { background-color: #fef3c7; color: #92400e; }
+            .status-badge-待製作 { background-color: #fee2e2; color: #991b1b; }
+            .status-badge-已完成 { background-color: #dcfce7; color: #166534; }
+            .due-date-normal { background-color: #f3f4f6; }
+            .due-date-soon { background-color: #fef9c3; color: #a16207; border: 1px solid #fde047; }
+            .due-date-overdue { background-color: #fee2e2; color: #b91d1d; border: 1px solid #fca5a5; }
+            .editable { cursor: pointer; border-bottom: 1px dashed #9ca3af; transition: all 0.2s; }
+            .editable:hover { border-bottom: 1px solid #3b82f6; background-color: #eff6ff; }
+            .inline-editor-input { width: 100%; padding: 0.25rem; border: 1px solid #3b82f6; border-radius: 0.25rem; }
+            .modal-content-inner { background-color: white; padding: 1.5rem; border-radius: 0.5rem; max-width: 90%; width: 500px; }
+        </style>
+        <div class="bg-white p-4 rounded-lg shadow-inner mb-6 flex flex-wrap items-center justify-between gap-4">
+            <button id="add-item-btn-tracker" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors">＋ 新增項目</button>
+            <div class="flex flex-wrap items-center gap-4">
+                <div><label for="filter-status" class="text-sm font-medium mr-2">篩選狀態:</label><select id="filter-status" class="filter-select"><option value="all">全部</option><option value="待辦">待辦</option><option value="內容準備中">內容準備中</option><option value="設計中">設計中</option><option value="待審批">待審批</option><option value="待製作">待製作</option><option value="已完成">已完成</option></select></div>
+                <div><label for="filter-owner" class="text-sm font-medium mr-2">篩選負責人:</label><select id="filter-owner" class="filter-select"><option value="all">全部</option></select></div>
+            </div>
+        </div>
+        <div id="collateral-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+        <div id="item-modal-tracker" class="modal-overlay"><div class="modal-content-inner"><h3 id="modal-title-tracker" class="text-xl font-bold mb-4">新增項目</h3><form id="item-form-tracker" class="space-y-4"><div><label class="block text-sm font-medium text-gray-700">文件名稱</label><input type="text" id="item-name-tracker" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" required></div><div><label class="block text-sm font-medium text-gray-700">用途 / 應用場景</label><input type="text" id="item-application-tracker" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div><div><label class="block text-sm font-medium text-gray-700">負責人</label><input type="text" id="item-owner-tracker" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" required></div><div><label class="block text-sm font-medium text-gray-700">到期日</label><input type="date" id="item-due-date-tracker" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" required></div><div class="flex justify-end gap-2"><button type="button" id="cancel-btn-tracker" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg">取消</button><button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg">儲存</button></div></form></div></div>
+        <div id="history-modal-tracker" class="modal-overlay"><div class="modal-content-inner"><h3 class="text-xl font-bold mb-4">更新紀錄</h3><div id="history-log-tracker" class="space-y-2 mb-4 max-h-48 overflow-y-auto pr-2 bg-slate-50 p-2 rounded"></div><form id="history-form-tracker" class="space-y-2"><input type="hidden" id="history-item-id-tracker"><label class="block text-sm font-medium text-gray-700">新增紀錄 (輸入 V1.1 等可自動更新版本號)</label><textarea id="history-note-tracker" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="例如：V1.1 - 根據主席意見修改。"></textarea><div class="flex justify-end gap-2"><button type="button" id="close-history-btn-tracker" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg">關閉</button><button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg">加入紀錄</button></div></form></div></div>
+    </template>
+    
+    <template id="template-brief-generator">
+        <style>
+            .form-section { background-color: white; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1); }
+            .form-label { display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; }
+            .form-input, .form-textarea { width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.375rem; background-color: #f8fafc; }
+            .form-input:focus, .form-textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px #bfdbfe; background-color: white; }
+            .add-btn { background-color: #2563eb; color: white; font-weight: 500; padding: 0.5rem 1rem; border-radius: 0.375rem; }
+            .remove-btn { color: #ef4444; background-color: transparent; border: 1px solid #fecaca; border-radius: 0.375rem; padding: 0.25rem 0.5rem; font-weight: bold; }
+            .final-btn { background-color: #16a34a; color: white; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 0.375rem; width: 100%; }
+            .deliverable-block { border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin-top: 1rem; position: relative; background-color: #f8fafc; }
+            .image-preview { width: 100%; height: 150px; background-color: #e2e8f0; border-radius: 0.375rem; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 0.875rem; border: 2px dashed #cbd5e1; overflow: hidden; }
+            .image-preview img { width: 100%; height: 100%; object-fit: cover; }
+        </style>
+        <div id="brief-form-container">
+            <div class="form-section">
+                <h2 class="text-xl font-bold mb-4 text-slate-800 border-b pb-2">Project Overview</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div><label for="projectName" class="form-label">Project Name</label><input type="text" id="projectName" class="form-input" placeholder="e.g., Annual Gala 2025 Campaign"></div>
+                    <div><label for="projectManager" class="form-label">Project Manager</label><input type="text" id="projectManager" class="form-input" placeholder="e.g., Daisy Yam"></div>
+                    <div><label for="projectDate" class="form-label">Date Prepared</label><input type="date" id="projectDate" class="form-input"></div>
+                </div>
+            </div>
+            <div class="form-section">
+                <h2 class="text-xl font-bold mb-4 text-slate-800 border-b pb-2">Project Strategy</h2>
+                <div class="space-y-6">
+                    <div><label for="objective" class="form-label">Primary Objective</label><textarea id="objective" class="form-textarea" placeholder="e.g., To promote the Nanyin event series..."></textarea></div>
+                    <div><label for="audience" class="form-label">Target Audience</label><textarea id="audience" class="form-textarea" placeholder="e.g., General public with an interest in arts..."></textarea></div>
+                    <div><label for="keyMessage" class="form-label">Key Message</label><textarea id="keyMessage" class="form-textarea" placeholder="e.g., Experience the living history of Nanyin."></textarea></div>
+                    <div><label for="tone" class="form-label">Desired Tone & Feel</label><input type="text" id="tone" class="form-input" placeholder="e.g., Elegant, cultural, respectful, modern."></div>
+                </div>
+            </div>
+            <div class="form-section">
+                <h2 class="text-xl font-bold mb-4 text-slate-800 border-b pb-2">Deliverables & Specifications</h2>
+                <div id="deliverables-container"></div><button id="add-deliverable-btn" class="add-btn mt-4">＋ Add Deliverable</button>
+            </div>
+            <div class="form-section">
+                <h2 class="text-xl font-bold mb-4 text-slate-800 border-b pb-2">Asset Links</h2>
+                <div class="space-y-4">
+                    <div><label for="link-logos" class="form-label">Logos Folder Link</label><input type="text" id="link-logos" class="form-input" placeholder="Paste link to logos folder..."></div>
+                    <div><label for="link-images" class="form-label">Images Folder Link</label><input type="text" id="link-images" class="form-input" placeholder="Paste link to images folder..."></div>
+                    <div><label for="link-brand" class="form-label">Brand Guidelines Link</label><input type="text" id="link-brand" class="form-input" placeholder="Paste link to brand guidelines PDF..."></div>
+                    <div><label for="link-refs" class="form-label">Inspiration / References Link</label><input type="text" id="link-refs" class="form-input" placeholder="Paste link to mood board..."></div>
+                </div>
+            </div>
+            <div class="form-section">
+                 <h2 class="text-xl font-bold mb-4 text-slate-800 border-b pb-2">Timeline & Review</h2>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div><label for="date-draft" class="form-label">First Draft Due</label><input type="date" id="date-draft" class="form-input"></div>
+                    <div><label for="date-feedback" class="form-label">Feedback Due</label><input type="date" id="date-feedback" class="form-input"></div>
+                    <div><label for="date-final" class="form-label">Final Version Due</label><input type="date" id="date-final" class="form-input"></div>
+                    <div><label for="date-live" class="form-label">Project Go-Live / Print Date</label><input type="date" id="date-live" class="form-input"></div>
+                    <div class="md:col-span-2"><label for="contact" class="form-label">Primary Point of Contact</label><input type="text" id="contact" class="form-input" placeholder="Enter name and email for feedback"></div>
+                 </div>
+            </div>
+            <div class="form-section text-center">
+                <h2 class="text-xl font-bold mb-4 text-slate-800">Generate Your Brief</h2>
+                <button id="generate-btn" class="final-btn">📋 Generate & Copy Brief as Table</button>
+                <p id="copy-success" class="text-green-600 mt-4 font-semibold hidden">HTML Brief copied to clipboard!</p>
+            </div>
+        </div>
+    </template>
+
+    <template id="template-docs">
+        <style>
+            .doc-tab { padding: 0.5rem 1rem; cursor: pointer; border-bottom: 2px solid transparent; color: #64748b; }
+            .doc-tab.active { color: #3b82f6; border-color: #3b82f6; font-weight: 600; }
+            .doc-content { display: none; }
+            .doc-content.active { display: block; }
+            .doc-body { white-space: pre-wrap; font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; line-height: 1.8; background-color: white; padding: 2rem; border-radius: 0.5rem; border: 1px solid #e2e8f0; }
+            .doc-body h1 { font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; }
+            .doc-body h2 { font-size: 1.25rem; font-weight: bold; margin-top: 1.5rem; margin-bottom: 0.75rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem;}
+        </style>
+        <div class="w-full">
+            <div id="doc-tabs" class="flex border-b mb-4">
+                <button class="doc-tab active" data-target="doc-advertorial">活動特稿</button>
+                <button class="doc-tab" data-target="doc-mc-script">司儀稿</button>
+                <button class="doc-tab" data-target="doc-programme">音樂會場刊內容</button>
+            </div>
+            <div id="doc-content-container">
+                <div id="doc-advertorial" class="doc-content active"><div class="doc-body"><h1>以百載仁心 聽香江遺韻</h1><h2>東華三院155周年誌慶活動 「餘音裊裊——南音的傳承與創新」系列</h2><p>日前，由東華三院與康樂及文化事務署合辦、東華三院文物館與香港文化博物館聯合策劃的「餘音裊裊——南音的傳承與創新」系列活動，以著名粵劇藝術家阮兆輝教授的講座「南音賞析」揭開序幕，現場座無虛席，反應熱烈，足見市民對此本土藝術瑰寶的熱愛...</p><p>[...內容省略...]</p><p>所有活動均免費入場，歡迎公眾一同參與，在裊裊餘音中，感受我城的歷史脈搏與文化溫度。</p></div></div>
+                <div id="doc-mc-script" class="doc-content"><div class="doc-body"><h1>情繫蔴地——南音音樂會 司儀稿 (MC Script)</h1><h2>準備階段 (Pre-show)</h2><p>(3:55 PM)<br> (PA System Announcement - Cantonese): 各位來賓，午安。「情繫蔴地——南音音樂會」將於五分鐘後正式開始...</p><p>[...內容省略...]</p><p>活動到此圓滿結束，祝各位有一個愉快嘅晚上。多謝大家！</p></div></div>
+                <div id="doc-programme" class="doc-content"><div class="doc-body"><h1>餘音裊裊——南音的傳承與創新</h1><h2>情繫蔴地——南音音樂會</h2><p>**日期：** 2025年8月30日（星期六）...</p><p>[...內容省略...]</p><p>**特別鳴謝**</p></div></div>
+            </div>
+        </div>
+    </template>
+    
 
     <script src="script.js"></script>
 </body>
