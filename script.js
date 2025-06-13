@@ -40,20 +40,15 @@
                 
                 deliverablesContainer.appendChild(block);
 
-                block.querySelector('.remove-btn').addEventListener('click', () => {
-                    block.remove();
-                });
-
+                block.querySelector('.remove-btn').addEventListener('click', () => { block.remove(); });
                 block.querySelector('.deliverable-ref').addEventListener('change', function(event) {
                     const preview = document.getElementById(`preview-${blockId}`);
                     const file = event.target.files[0];
                     if (file) {
                         const reader = new FileReader();
-                        preview.innerHTML = ''; // Clear "No image selected" text
+                        preview.innerHTML = '';
                         const img = document.createElement('img');
-                        reader.onload = function(e) {
-                            img.src = e.target.result;
-                        }
+                        reader.onload = function(e) { img.src = e.target.result; }
                         reader.readAsDataURL(file);
                         preview.appendChild(img);
                     } else {
@@ -63,7 +58,7 @@
             }
 
             addDeliverableBtn.addEventListener('click', createDeliverableBlock);
-            createDeliverableBlock(); // Start with one empty block
+            createDeliverableBlock();
 
             const generateBtn = document.getElementById('generate-btn');
             const successMsg = document.getElementById('copy-success');
@@ -76,48 +71,37 @@
                 disclaimerElement.classList.add('hidden');
                 buttonElement.disabled = true;
                 buttonElement.classList.add('opacity-50', 'cursor-not-allowed');
-
                 try {
                     const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
+                    const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                     const data = await response.json();
-
-                    if (data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts.length > 0) {
+                    if (data.candidates && data.candidates[0].content.parts[0].text) {
                         const text = data.candidates[0].content.parts[0].text.trim();
                         resultElement.innerHTML = `<div class="ai-generated-content">${text}</div>`;
                         disclaimerElement.classList.remove('hidden');
-                    } else {
-                         throw new Error('No valid content received from API.');
-                    }
+                    } else { throw new Error('No valid content received from API.'); }
                 } catch (error) {
                     console.error('Error with Gemini API:', error);
-                    resultElement.innerHTML = `<p class="text-red-600 p-2 bg-red-100 rounded">An error occurred while generating content. Please check the console.</p>`;
+                    resultElement.innerHTML = `<p class="text-red-600 p-2 bg-red-100 rounded">An error occurred while generating content.</p>`;
                 } finally {
                     buttonElement.disabled = false;
                     buttonElement.classList.remove('opacity-50', 'cursor-not-allowed');
                 }
             }
             
-            // AI Feature Button Listeners
             document.getElementById('refineObjectiveBtn').addEventListener('click', () => {
                 const objective = document.getElementById('objective').value;
                 if (!objective.trim()) { alert('Please enter an objective first.'); return; }
                 const prompt = `Rewrite this project objective to be clearer and more actionable for a design team. Original: "${objective}"`;
                 callGeminiAPI(prompt, document.getElementById('objectiveResult'), document.getElementById('objectiveDisclaimer'), document.getElementById('refineObjectiveBtn'));
             });
-
             document.getElementById('suggestMessagesBtn').addEventListener('click', () => {
                 const objective = document.getElementById('objective').value;
                 const audience = document.getElementById('audience').value;
                 if (!objective.trim() || !audience.trim()) { alert('Please fill in the Primary Objective and Target Audience first.'); return; }
-                const prompt = `Based on the objective "${objective}" and target audience "${audience}", suggest 3-5 distinct key messages or taglines. Format as a simple numbered list.`;
+                const prompt = `For a design project with the objective "${objective}" targeting "${audience}", suggest 3-5 distinct key messages or taglines. Format as a simple numbered list.`;
                 callGeminiAPI(prompt, document.getElementById('messagesResult'), document.getElementById('messagesDisclaimer'), document.getElementById('suggestMessagesBtn'));
             });
-            
             document.getElementById('generateIdeasBtn').addEventListener('click', () => {
                 const objective = document.getElementById('objective').value;
                 const audience = document.getElementById('audience').value;
@@ -126,20 +110,11 @@
                 callGeminiAPI(prompt, document.getElementById('ideasResult'), document.getElementById('ideasDisclaimer'), document.getElementById('generateIdeasBtn'));
             });
 
-            generateBtn.addEventListener('click', () => {
-                let brief = `DESIGN BRIEF\n=========================\n\n`;
+            function generateBriefHtml() {
+                const getVal = (id) => document.getElementById(id).value || 'N/A';
+                const esc = (str) => str.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>");
 
-                brief += `**Project Name:** ${document.getElementById('projectName').value || 'N/A'}\n`;
-                brief += `**Project Manager:** ${document.getElementById('projectManager').value || 'N/A'}\n`;
-                brief += `**Date Prepared:** ${document.getElementById('projectDate').value || 'N/A'}\n\n`;
-
-                brief += `--- PHASE 1: STRATEGY ---\n`;
-                brief += `**1. Primary Objective:**\n${document.getElementById('objective').value || 'N/A'}\n\n`;
-                brief += `**2. Target Audience:**\n${document.getElementById('audience').value || 'N/A'}\n\n`;
-                brief += `**3. Key Message:**\n${document.getElementById('keyMessage').value || 'N/A'}\n\n`;
-                brief += `**4. Desired Tone & Feel:**\n${document.getElementById('tone').value || 'N/A'}\n\n`;
-
-                brief += `--- PHASE 2: DELIVERABLES & CONTENT ---\n`;
+                let deliverablesHtml = '';
                 const blocks = document.querySelectorAll('.deliverable-block');
                 if (blocks.length > 0) {
                     blocks.forEach((block, index) => {
@@ -147,46 +122,114 @@
                         const spec = block.querySelector('.deliverable-spec').value;
                         const copy = block.querySelector('.deliverable-copy').value;
                         const refFile = block.querySelector('.deliverable-ref').files[0];
-
                         if (name) {
-                            brief += `\n**Deliverable ${index + 1}: ${name}**\n`;
-                            brief += `   - **Specs:** ${spec || 'N/A'}\n`;
-                            if(refFile){
-                                brief += `   - **Visual Reference:** [Image Provided - please see attached file: ${refFile.name}]\n`;
-                            }
-                            brief += `   - **Content/Copy:**\n---\n${copy || 'No copy provided.'}\n---\n`;
+                            deliverablesHtml += `
+                                <tr>
+                                    <td style="padding: 10px; border: 1px solid #e2e8f0; vertical-align: top; font-weight: bold; width: 25%;">${esc(name)}</td>
+                                    <td style="padding: 10px; border: 1px solid #e2e8f0; vertical-align: top;">
+                                        <strong>Specs:</strong> ${esc(spec)}<br>
+                                        <strong>Visual Ref:</strong> ${refFile ? `[Image Provided: ${esc(refFile.name)}]` : 'N/A'}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border: 1px solid #e2e8f0; vertical-align: top; font-weight: bold;">Copy</td>
+                                    <td style="padding: 10px; border: 1px solid #e2e8f0; vertical-align: top; white-space: pre-wrap; word-break: break-word;">${copy ? esc(copy) : '<em>No copy provided.</em>'}</td>
+                                </tr>`;
                         }
                     });
-                } else {
-                    brief += 'No deliverables listed.\n\n';
+                }
+                if (deliverablesHtml === '') {
+                     deliverablesHtml = `<tr><td colspan="2" style="padding: 10px; border: 1px solid #e2e8f0;">No deliverables listed.</td></tr>`;
                 }
 
-                brief += `\n--- PHASE 3: ASSET LINKS ---\n`;
-                brief += `Logos Folder: ${document.getElementById('link-logos').value || 'N/A'}\n`;
-                brief += `Images Folder: ${document.getElementById('link-images').value || 'N/A'}\n`;
-                brief += `Brand Guidelines: ${document.getElementById('link-brand').value || 'N/A'}\n`;
-                brief += `References Folder: ${document.getElementById('link-refs').value || 'N/A'}\n\n`;
+                return `
+                    <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 800px; border: 1px solid #ccc; padding: 20px;">
+                        <h1 style="font-size: 24px; color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin: 0 0 20px 0;">Design Brief</h1>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                            <tr style="background-color: #f8fafc;">
+                                <td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: bold; width: 150px;">Project Name:</td>
+                                <td style="padding: 10px; border: 1px solid #e2e8f0;">${esc(getVal('projectName'))}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: bold;">Project Manager:</td>
+                                <td style="padding: 10px; border: 1px solid #e2e8f0;">${esc(getVal('projectManager'))}</td>
+                            </tr>
+                            <tr style="background-color: #f8fafc;">
+                                <td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: bold;">Date Prepared:</td>
+                                <td style="padding: 10px; border: 1px solid #e2e8f0;">${esc(getVal('projectDate'))}</td>
+                            </tr>
+                        </table>
 
-                brief += `--- PHASE 4: TIMELINE & CONTACT ---\n`;
-                brief += `**First Draft Due:** ${document.getElementById('date-draft').value || 'N/A'}\n`;
-                brief += `**Feedback Due:** ${document.getElementById('date-feedback').value || 'N/A'}\n`;
-                brief += `**Final Version Due:** ${document.getElementById('date-final').value || 'N/A'}\n`;
-                brief += `**Go-Live / Print Date:** ${document.getElementById('date-live').value || 'N/A'}\n`;
-                brief += `**Primary Contact:** ${document.getElementById('contact').value || 'N/A'}\n\n`;
-                
-                brief += `=========================\nThank you!`;
-                
-                const textarea = document.createElement('textarea');
-                textarea.value = brief;
-                document.body.appendChild(textarea);
-                textarea.select();
+                        <h2 style="font-size: 20px; color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin: 25px 0 15px 0;">Project Strategy</h2>
+                        <div style="margin-bottom: 15px;">
+                            <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 5px 0;">Primary Objective</h3>
+                            <p style="margin: 0; padding: 10px; background-color: #f8fafc; border-radius: 4px;">${esc(getVal('objective'))}</p>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 5px 0;">Target Audience</h3>
+                            <p style="margin: 0; padding: 10px; background-color: #f8fafc; border-radius: 4px;">${esc(getVal('audience'))}</p>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 5px 0;">Key Message</h3>
+                            <p style="margin: 0; padding: 10px; background-color: #f8fafc; border-radius: 4px;">${esc(getVal('keyMessage'))}</p>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 5px 0;">Desired Tone & Feel</h3>
+                            <p style="margin: 0; padding: 10px; background-color: #f8fafc; border-radius: 4px;">${esc(getVal('tone'))}</p>
+                        </div>
+
+                        <h2 style="font-size: 20px; color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin: 25px 0 15px 0;">Deliverables</h2>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; background-color: #f8fafc;">
+                           ${deliverablesHtml}
+                        </table>
+
+                        <h2 style="font-size: 20px; color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin: 25px 0 15px 0;">Asset Links</h2>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                            <tr style="background-color: #f8fafc;"><td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: bold; width: 150px;">Logos:</td><td style="padding: 10px; border: 1px solid #e2e8f0;">${getVal('link-logos')}</td></tr>
+                            <tr><td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: bold;">Images:</td><td style="padding: 10px; border: 1px solid #e2e8f0;">${getVal('link-images')}</td></tr>
+                            <tr style="background-color: #f8fafc;"><td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: bold;">Brand Guidelines:</td><td style="padding: 10px; border: 1px solid #e2e8f0;">${getVal('link-brand')}</td></tr>
+                            <tr><td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: bold;">References:</td><td style="padding: 10px; border: 1px solid #e2e8f0;">${getVal('link-refs')}</td></tr>
+                        </table>
+                        
+                        <h2 style="font-size: 20px; color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin: 25px 0 15px 0;">Timeline & Contact</h2>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr style="background-color: #f8fafc;"><td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: bold; width: 150px;">First Draft Due:</td><td style="padding: 10px; border: 1px solid #e2e8f0;">${getVal('date-draft')}</td></tr>
+                            <tr><td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: bold;">Feedback Due:</td><td style="padding: 10px; border: 1px solid #e2e8f0;">${getVal('date-feedback')}</td></tr>
+                            <tr style="background-color: #f8fafc;"><td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: bold;">Final Version Due:</td><td style="padding: 10px; border: 1px solid #e2e8f0;">${getVal('date-final')}</td></tr>
+                            <tr><td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: bold;">Go-Live / Print Date:</td><td style="padding: 10px; border: 1px solid #e2e8f0;">${getVal('date-live')}</td></tr>
+                            <tr style="background-color: #f8fafc;"><td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: bold;">Primary Contact:</td><td style="padding: 10px; border: 1px solid #e2e8f0;">${esc(getVal('contact'))}</td></tr>
+                        </table>
+                    </div>
+                `;
+            }
+
+            function copyHtmlToClipboard(html) {
+                const container = document.createElement('div');
+                container.style.position = 'fixed';
+                container.style.pointerEvents = 'none';
+                container.style.opacity = 0;
+                container.innerHTML = html;
+                document.body.appendChild(container);
+
+                window.getSelection().removeAllRanges();
+                const range = document.createRange();
+                range.selectNode(container);
+                window.getSelection().addRange(range);
+
                 try {
-                    document.execCommand('copy');
+                    const successful = document.execCommand('copy');
+                    const msg = successful ? 'copied' : 'failed';
+                    console.log('Copying HTML table ' + msg);
                     successMsg.classList.remove('hidden');
                     setTimeout(() => successMsg.classList.add('hidden'), 3000);
                 } catch (err) {
-                    console.error('Failed to copy text: ', err);
+                    console.error('Fallback: Oops, unable to copy', err);
                 }
-                document.body.removeChild(textarea);
+                document.body.removeChild(container);
+            }
+
+            generateBtn.addEventListener('click', () => {
+                const briefHtml = generateBriefHtml();
+                copyHtmlToClipboard(briefHtml);
             });
         });
